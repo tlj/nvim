@@ -9,6 +9,7 @@ return {
 			lua = { "stylua" },
 			sh = { "shfmt" },
 			markdown = { "mdformat" },
+			ts = { "prettier" },
 		},
 		formatters = {
 			shfmt = { preprend_args = { "-i", "2" } },
