@@ -43,7 +43,6 @@ vim.api.nvim_create_autocmd("FileType", {
 		"tsplayground",
 		"PlenaryTestPopup",
 		"grug-far",
-		"oil",
 		"deck",
 		"dap-float",
 		"git",
