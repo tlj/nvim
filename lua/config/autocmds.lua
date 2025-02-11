@@ -47,7 +47,6 @@ vim.api.nvim_create_autocmd("FileType", {
 		"deck",
 		"dap-float",
 		"git",
-		"dap-view",
 	},
 	callback = function(event)
 		vim.bo[event.buf].buflisted = false
