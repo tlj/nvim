@@ -28,21 +28,23 @@ require("graft").setup({
 				vim.cmd("colorscheme gruvbox-baby")
 			end,
 		},
-		{
-			-- pretty notifications - not strictly neccessary
-			"rcarriga/nvim-notify",
-			function()
-				local notify = require("notify")
-				notify.setup({ stages = "static" })
-				vim.notify = notify
-			end,
-		},
+		-- {
+		-- 	-- pretty notifications - not strictly neccessary
+		-- 	"rcarriga/nvim-notify",
+		-- 	function()
+		-- 		local notify = require("notify")
+		-- 		notify.setup({ stages = "static" })
+		-- 		vim.notify = notify
+		-- 	end,
+		-- },
 		-- LSP completions for CMP
 		-- Has to be loaded at startup so it can be used in v0.11 style lsp config
 		"hrsh7th/cmp-nvim-lsp",
 		-- treesitterk
 		include("nvim-treesitter/nvim-treesitter"),
 		include("nvim-treesitter/nvim-treesitter-textobjects"), -- extend treesitter
+		-- folke/snacks - replaces pickers
+		include("folke/snacks.nvim"),
 	},
 	opt = {
 		{
@@ -71,7 +73,6 @@ require("graft").setup({
 		include("sindrets/diffview.nvim"),
 
 		-- File management and fuzzy finding
-		include("ibhagwan/fzf-lua"),
 		include("stevearc/oil.nvim"), -- file management
 
 		-- TMUX navigation (ctrl-hjkl to switch between nvim and tmux
@@ -86,9 +87,7 @@ require("graft").setup({
 		-- dap debugger
 		include("mfussenegger/nvim-dap"),
 		include("igorlfs/nvim-dap-view"),
-		-- include("theHamsta/nvim-dap-virtual-text"),
 		include("leoluz/nvim-dap-go"),
-		-- include("rcarriga/nvim-dap-ui"),
 
 		-- Quickfix improvements
 		{
