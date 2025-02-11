@@ -47,10 +47,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		local bufnr = args.buf
 
 		-- Set up keymaps
-		vim.keymap.set("n", "gd", "<cmd>FzfLua lsp_definitions<cr>", { buffer = bufnr, desc = "Jump to definition" })
-		vim.keymap.set("n", "gD", "<cmd>FzfLua lsp_declarations<cr>", { buffer = bufnr, desc = "Fzf Jump to declaration" })
-		vim.keymap.set("n", "gi", "<cmd>FzfLua lsp_implementations<cr>", { buffer = bufnr, desc = "Pick Implementations" })
-		vim.keymap.set("n", "gr", "<cmd>FzfLua lsp_references<cr>", { buffer = bufnr, desc = "Pick References" })
 		vim.keymap.set(
 			"n",
 			"gl",

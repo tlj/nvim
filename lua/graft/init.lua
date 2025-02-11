@@ -1,13 +1,4 @@
 local M = {
-	root_dir = vim.fn.stdpath("data") .. "/site", -- config for dotfiles repo, data for ~/.local/share/nvim/site
-	pack_dir = "pack/graft/opt/",
-	config = {
-		submodules = false,
-		install = false,
-		debug = false,
-		start = {},
-		opt = {},
-	},
 	plugins = {},
 	loaded = {},
 	installed = {},
@@ -15,57 +6,10 @@ local M = {
 
 local to_install = 0
 local installed = 0
-local timings = {}
-local start_times = {}
 
-local function start_timer(label) start_times[label] = vim.loop.hrtime() end
-
-local function stop_timer(label)
-	local elapsed = (vim.loop.hrtime() - start_times[label]) / 1000000 -- Convert to milliseconds
-	timings[label] = elapsed
-end
-
-local function show_timings()
-	local total = 0
-	local sorted = {}
-
-	-- Convert to sortable array
-	for label, time in pairs(timings) do
-		table.insert(sorted, { label = label, time = time })
-		total = total + time
-	end
-
-	-- Sort by time taken, descending
-	table.sort(sorted, function(a, b) return a.time > b.time end)
-
-	-- Create output
-	local output = { "Plugin Load Timings:" }
-	for _, item in ipairs(sorted) do
-		table.insert(output, string.format("%6.2fms  %s", item.time, item.label))
-	end
-	table.insert(output, string.format("Total time: %.2fms", total))
-
-	-- Show in floating window
-	local buf = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
-
-	local width = 60
-	local height = #output
-	local win = vim.api.nvim_open_win(buf, false, {
-		relative = "editor",
-		width = width,
-		height = height,
-		row = 1,
-		col = vim.o.columns - width - 1,
-		style = "minimal",
-		border = "rounded",
-	})
-
-	-- Close window after 30 seconds
-	vim.defer_fn(function()
-		if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
-	end, 10000)
-end
+local benchmark = require("graft.benchmark")
+local git = require("graft.git")
+local config = require("graft.config")
 
 ---@class tlj.Plugin
 ---@field repo string The github repo path
@@ -73,51 +17,11 @@ end
 ---@field setup? function
 ---@field settings? table
 ---@field auto_install? boolean Defaults to true
----@field events? string[] Events which triggers loading of plugin
----@field cmds? string[] A list of commands which will load the plugin
 ---@field pattern? string[] Patterns which are required for loading the plugin
 ---@field after? string[] Plugins which trigger loading of this plugin (list of repos)
 ---@field keys? table<string, {cmd:string|function, desc: string}> Keymaps with commands (string or function) and description
 ---@field build? string A command (vim cmd if it starts with :, system otherwise) to run after install
-
-local function parse_git_result(obj)
-	local output = {}
-	local stdout = obj.stdout .. "\n" .. obj.stderr
-
-	for line in stdout:gmatch("[^\n]+") do
-		output[#output + 1] = line
-	end
-
-	return obj.code == 0, output
-end
-
----@param args string[]
-local function git(args, opts)
-	local defaults = { root_dir = M.root_dir, async = false }
-	opts = vim.tbl_deep_extend("force", defaults, opts or {})
-
-	local cmd = { "git", "-C", opts.root_dir }
-
-	vim.list_extend(cmd, args)
-
-	if opts.async then
-		vim.system(cmd, { text = true }, function(obj)
-			local success, output = parse_git_result(obj)
-			if success and type(opts.on_success) == "function" then opts.on_success(output) end
-			if not success and type(opts.on_failure) == "function" then opts.on_failure(output) end
-		end)
-	else
-		local result = vim.system(cmd, { text = true }, nil):wait()
-		return parse_git_result(result)
-	end
-end
-
----@param repo string
----@return string
-local function repo_dir(repo)
-	local dir = repo:gsub("/", "%-%-"):lower()
-	return dir
-end
+---@field version? string Version constraint (tag/branch). Use "*" or nil for default branch, "v1.2.3" for exact tag, "v1" or "v1.2" for prefix matching
 
 ---@param arg string|tlj.Plugin
 ---@return tlj.Plugin
@@ -142,14 +46,6 @@ local function normalize_spec(arg)
 
 	return spec
 end
-
----@param repo string
----@return string
-local function pack_dir(repo) return M.pack_dir .. repo_dir(repo) end
-
----@param repo string
----@return string
-local function path(repo) return M.root_dir .. "/" .. pack_dir(repo) end
 
 -- Register plugins which this plugin will load after, through listening
 -- to user events emitted by plugins being loaded
@@ -200,15 +96,15 @@ local function get_repo_require_path(repo)
 end
 
 M.debug = function(msg)
-	-- if M.config.debug then vim.notify(msg, "info", { title = "Graft Debug" }) end
-	if M.config.debug then vim.print(msg) end
+	-- if config.config.debug then vim.notify(msg, "info", { title = "Graft Debug" }) end
+	if config.config.debug then vim.print(msg) end
 end
 
 ---@param repo string
 M.load = function(repo)
 	-- Don't load again if already loaded
 	if M.loaded[repo] then return end
-	M.loaded[repo] = true
+	M.loaded[repo] = vim.tbl_count(M.loaded) + 1
 
 	---@type tlj.Plugin
 	local spec = M.plugins[repo]
@@ -217,19 +113,19 @@ M.load = function(repo)
 		return
 	end
 
-	start_timer("load " .. repo)
+	benchmark.start_timer("load " .. repo)
 	M.debug("Loading " .. repo)
 
 	-- If this plugin is not installed yet, let's just skip it
-	if vim.fn.isdirectory(path(repo)) == 0 then
+	if vim.fn.isdirectory(git.path(repo)) == 0 then
 		if spec.auto_install then
 			local success = M.install(repo)
 			if not success then
-				stop_timer("load " .. repo)
+				benchmark.stop_timer("load " .. repo)
 				return
 			end
 		else
-			stop_timer("load " .. repo)
+			benchmark.stop_timer("load " .. repo)
 			return
 		end
 	end
@@ -241,7 +137,7 @@ M.load = function(repo)
 	end
 
 	-- Add the package to Neovim
-	vim.cmd("packadd " .. repo_dir(repo))
+	vim.cmd("packadd " .. git.repo_dir(repo))
 
 	-- Run setup function if it exists
 	if spec.setup and type(spec.setup) == "function" then
@@ -271,7 +167,7 @@ M.load = function(repo)
 			else
 				M.debug(" * Building with system command " .. spec.build)
 				local prev_dir = vim.fn.getcwd()
-				vim.cmd("cd " .. path(repo))
+				vim.cmd("cd " .. git.path(repo))
 				vim.fn.system(spec.build)
 				vim.cmd("cd " .. prev_dir)
 			end
@@ -282,10 +178,55 @@ M.load = function(repo)
 	-- which are waiting for us can trigger.
 	vim.api.nvim_exec_autocmds("User", { pattern = spec.repo })
 
-	stop_timer("load " .. repo)
+	benchmark.stop_timer("load " .. repo)
 end
 
 local function url(repo) return "https://github.com/" .. repo end
+
+-- Check if a tag matches a version constraint
+---@param tag string The git tag to check
+---@param version string The version constraint
+---@return boolean
+local function matches_version(tag, version) return require("graft.git").matches_constraint(tag, version) end
+
+-- Get the appropriate git ref based on version constraint
+---@param repo string The repository
+---@param version? string The version constraint
+---@return string? ref The git ref to use
+local function get_version_ref(repo, version)
+	if not version or version == "*" then
+		return nil -- Use default branch
+	end
+
+	-- Try exact tag/branch first
+	local cmd = { "ls-remote", "--refs", url(repo) }
+	local success, output = git.run(cmd)
+	if not success then return nil end
+
+	local refs = {}
+	for _, line in ipairs(output) do
+		local hash, ref = line:match("([%x]+)%s+(.+)")
+		if hash and ref then refs[ref] = hash end
+	end
+
+	-- Check for exact tag match
+	if refs["refs/tags/" .. version] then return version end
+
+	-- Check for matching version prefix in tags
+	local matching_tags = {}
+	for ref, _ in pairs(refs) do
+		local tag = ref:match("^refs/tags/(.+)$")
+		if tag and matches_version(tag, version) then table.insert(matching_tags, tag) end
+	end
+
+	-- Sort tags to get the latest matching version
+	table.sort(matching_tags, function(a, b)
+		-- This is a simple version comparison, might need to be more sophisticated
+		return a > b
+	end)
+
+	return matching_tags[1] or version
+end
 
 -- Update status in neovim without user input
 ---@param msg string
@@ -294,24 +235,29 @@ local function show_status(msg)
 	vim.cmd.echo("'" .. msg .. "'")
 end
 
--- Ensure all plugins are installed
+-- Ensure plugin is installed
 ---@param repo string
 ---@return boolean
 M.install = function(repo)
-	start_timer("install " .. repo)
-	vim.fn.mkdir(M.root_dir .. "/" .. M.pack_dir, "p")
-	if vim.fn.isdirectory(path(repo)) == 0 then
+	benchmark.start_timer("install " .. repo)
+	vim.fn.mkdir(config.config.root_dir .. "/" .. config.config.pack_dir, "p")
+	if vim.fn.isdirectory(git.path(repo)) == 0 then
 		installed = installed + 1
 		show_status(string.format("[%d/%d] Installing plugin %s...", installed, to_install, repo))
 
+		local version_ref = get_version_ref(repo, M.plugins[repo].version)
 		local cmd = {}
-		if M.config.submodules then
-			cmd = { "submodule", "add", "-f", url(repo), pack_dir(repo) }
+		if config.config.submodules then
+			cmd = { "submodule", "add", "-f" }
+			if version_ref then cmd = vim.list_extend(cmd, { "-b", version_ref }) end
+			cmd = vim.list_extend(cmd, { url(repo), git.pack_dir(repo) })
 		else
-			cmd = { "clone", "--depth", "1", url(repo), pack_dir(repo) }
+			cmd = { "clone", "--depth", "1" }
+			if version_ref then cmd = vim.list_extend(cmd, { "-b", version_ref }) end
+			cmd = vim.list_extend(cmd, { url(repo), git.pack_dir(repo) })
 		end
 
-		local success, output = git(cmd)
+		local success, output = git.run(cmd)
 		if not success then
 			local hasnotify, notify = pcall(require, "notify")
 			if hasnotify then
@@ -319,14 +265,14 @@ M.install = function(repo)
 			else
 				vim.notify("Error installing " .. repo .. ".")
 			end
-			stop_timer("install " .. repo)
+			benchmark.stop_timer("install " .. repo)
 			return false
 		end
 
 		M.installed[repo] = true
 	end
 
-	stop_timer("install " .. repo)
+	benchmark.stop_timer("install " .. repo)
 	return true
 end
 
@@ -334,11 +280,11 @@ end
 M.uninstall = function(dir)
 	show_status(string.format("Uninstalling %s...", dir))
 
-	if M.config.submodules then
-		git({ "submodule", "deinit", "-f", dir })
-		git({ "rm", "-f", dir })
+	if config.config.submodules then
+		git.run({ "submodule", "deinit", "-f", dir })
+		git.run({ "rm", "-f", dir })
 	else
-		local rmdir = M.root_dir .. "/" .. dir
+		local rmdir = config.config.root_dir .. "/" .. dir
 		vim.notify("Removing " .. rmdir)
 		vim.fn.delete(rmdir, "rf")
 	end
@@ -350,36 +296,31 @@ M.update_all = function()
 	end
 end
 
-M.update = function(repo)
-	if M.config.submodules then
+M.update = function(repo, callbacks)
+	if config.config.submodules then
+		-- TODO: Add submodules support
 	else
-		git({ "pull" }, {
-			root_dir = path(repo),
+		callbacks = callbacks or {}
+		local spec = M.plugins[repo]
+
+		git.update(git.path(repo), spec.version, {
 			async = true,
-			on_success = function(output)
-				local updated = true
-				for _, line in ipairs(output) do
-					if line == "Already up to date." then updated = false end
-				end
-				if updated then vim.notify(repo .. " updated.") end
-			end,
-			on_failure = function(output)
-				require("notify")(vim.list_extend({ repo .. ": Error: " }, output), "error", { title = "Plugins", timeout = 5000 })
-			end,
+			on_success = callbacks.on_success,
+			on_failure = callbacks.on_failure,
 		})
 	end
 end
 
 -- Remove any plugins in our pack_dir which are not defined in our list of plugins
 M.cleanup = function()
-	start_timer("cleanup")
+	benchmark.start_timer("cleanup")
 	local desired = {}
 	for _, spec in pairs(M.plugins) do
-		local dir = pack_dir(spec.repo)
+		local dir = git.pack_dir(spec.repo)
 		if dir ~= nil then table.insert(desired, dir) end
 	end
 
-	local full_pack_dir = M.root_dir .. "/" .. M.pack_dir
+	local full_pack_dir = config.config.root_dir .. "/" .. config.config.pack_dir
 	if vim.fn.isdirectory(full_pack_dir) == 1 then
 		local handle = vim.loop.fs_scandir(full_pack_dir)
 		if handle then
@@ -387,13 +328,13 @@ M.cleanup = function()
 				local name, ftype = vim.loop.fs_scandir_next(handle)
 				if not name then break end
 				if ftype == "directory" then
-					local dir = M.pack_dir .. name
+					local dir = config.config.pack_dir .. name
 					if not vim.tbl_contains(desired, dir) then M.uninstall(dir) end
 				end
 			end
 		end
 	end
-	stop_timer("cleanup")
+	benchmark.stop_timer("cleanup")
 end
 
 ---@param arg string|tlj.Plugin
@@ -409,33 +350,33 @@ end
 M.sync = function()
 	vim.schedule(function()
 		for repo, _ in pairs(M.plugins) do
-			if vim.fn.isdirectory(path(repo)) == 0 then to_install = to_install + 1 end
+			if vim.fn.isdirectory(git.path(repo)) == 0 then to_install = to_install + 1 end
 		end
 
 		for repo, spec in pairs(M.plugins) do
 			if not spec.after then M.load(repo) end
 		end
 
-		start_timer("helptags")
+		benchmark.start_timer("helptags")
 		vim.cmd("helptags ALL")
-		stop_timer("helptags")
+		benchmark.stop_timer("helptags")
 
 		M.cleanup()
 	end)
 end
 
 M.setup = function(opts)
-	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+	config.setup(opts)
 
-	for _, p in ipairs(M.config.start) do
+	for _, p in ipairs(config.config.start) do
 		M.start(p)
 	end
 
-	for _, p in ipairs(M.config.opt) do
+	for _, p in ipairs(config.config.opt) do
 		M.opt(p)
 	end
 
-	if M.config.install then
+	if config.config.install then
 		for repo, _ in pairs(M.plugins) do
 			M.install(repo)
 		end
@@ -443,7 +384,8 @@ M.setup = function(opts)
 
 	vim.api.nvim_create_user_command("GraftUpdate", function() require("graft").update_all() end, {})
 	vim.api.nvim_create_user_command("GraftSync", function() require("graft").sync() end, {})
-	vim.api.nvim_create_user_command("GraftTimings", show_timings, {})
+	vim.api.nvim_create_user_command("GraftTimings", function() require("graft.ui").show_timings() end, {})
+	vim.api.nvim_create_user_command("GraftInfo", function() require("graft.ui").show_plugin_info() end, {})
 
 	vim.api.nvim_create_autocmd("VimEnter", {
 		group = M.autogroup,
@@ -466,7 +408,7 @@ end
 ---@param repo string
 M.include = function(repo)
 	-- change the slash to -- for filename
-	local f = repo_dir(repo)
+	local f = git.repo_dir(repo)
 	-- remove extension and add the load path
 	local fp = "config/plugins/" .. normalize_require_name(f)
 

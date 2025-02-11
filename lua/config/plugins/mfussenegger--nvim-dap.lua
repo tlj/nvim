@@ -1,6 +1,5 @@
 return {
 	repo = "mfussenegger/nvim-dap",
-	requires = { "ibhagwan/fzf-lua" },
 	settings = {},
 	setup = function(_)
 		local dap = require("dap")
@@ -54,7 +53,7 @@ return {
 		["<leader>dd"] = {
 			cmd = function()
 				if vim.fn.filereadable(".vscode/launch.json") then require("dap.ext.vscode").load_launchjs() end
-				require("fzf-lua").dap_configurations()
+				require("dap").continue()
 			end,
 			desc = "Debug Session",
 		},

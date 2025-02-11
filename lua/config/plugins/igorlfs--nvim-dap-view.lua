@@ -28,7 +28,7 @@ return {
 			pattern = { "dap-view" },
 			callback = function(event)
 				vim.bo[event.buf].buflisted = false
-				vim.keymap.set("n", "q", "<cmd>require('dap-view').close()<cr>", { buffer = event.buf, silent = true })
+				vim.keymap.set("n", "q", "<cmd>require('dap-view').toggle()<cr>", { buffer = event.buf, silent = true })
 			end,
 		})
 	end,

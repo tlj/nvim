@@ -28,21 +28,15 @@ require("graft").setup({
 				vim.cmd("colorscheme gruvbox-baby")
 			end,
 		},
-		-- {
-		-- 	-- pretty notifications - not strictly neccessary
-		-- 	"rcarriga/nvim-notify",
-		-- 	function()
-		-- 		local notify = require("notify")
-		-- 		notify.setup({ stages = "static" })
-		-- 		vim.notify = notify
-		-- 	end,
-		-- },
+
 		-- LSP completions for CMP
 		-- Has to be loaded at startup so it can be used in v0.11 style lsp config
 		"hrsh7th/cmp-nvim-lsp",
+
 		-- treesitterk
 		include("nvim-treesitter/nvim-treesitter"),
 		include("nvim-treesitter/nvim-treesitter-textobjects"), -- extend treesitter
+
 		-- folke/snacks - replaces pickers
 		include("folke/snacks.nvim"),
 	},
@@ -52,6 +46,9 @@ require("graft").setup({
 			"nvim-tree/nvim-web-devicons",
 			settings = { color_icons = true },
 		},
+
+		-- LSP progress
+		{ "j-hui/fidget.nvim", function() require("fidget").setup() end },
 
 		-- AI stuff
 		include("zbirenbaum/copilot.lua"), -- for autocomplete
@@ -71,6 +68,11 @@ require("graft").setup({
 		-- Git stuff
 		include("lewis6991/gitsigns.nvim"),
 		include("sindrets/diffview.nvim"),
+		{
+			"Yu-Leo/blame-column.nvim",
+			function() require("blame-column").setup() end,
+			keys = { ["<leader>bs"] = { cmd = "<cmd>BlameColumnToggle<cr>" } },
+		},
 
 		-- File management and fuzzy finding
 		include("stevearc/oil.nvim"), -- file management
@@ -89,6 +91,17 @@ require("graft").setup({
 		include("igorlfs/nvim-dap-view"),
 		include("leoluz/nvim-dap-go"),
 
+		-- Markdown
+		{
+			"MeanderingProgrammer/render-markdown.nvim",
+			requires = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+			setup = function()
+				require("render-markdown").setup({
+					file_types = { "markdown", "Avante" },
+				})
+			end,
+		},
+
 		-- Quickfix improvements
 		{
 			"stevearc/quicker.nvim",
@@ -97,6 +110,9 @@ require("graft").setup({
 				["<"] = { cmd = function() require("quicker").collapse() end },
 			},
 		},
+
+		-- AI
+		include("yetone/avante.nvim"),
 	},
 })
 
