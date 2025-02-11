@@ -324,8 +324,6 @@ M.install = function(repo)
 		end
 
 		M.installed[repo] = true
-
-		-- vim.cmd("helptags ALL")
 	end
 
 	stop_timer("install " .. repo)
@@ -417,6 +415,10 @@ M.sync = function()
 		for repo, spec in pairs(M.plugins) do
 			if not spec.after then M.load(repo) end
 		end
+
+		start_timer("helptags")
+		vim.cmd("helptags ALL")
+		stop_timer("helptags")
 
 		M.cleanup()
 	end)
