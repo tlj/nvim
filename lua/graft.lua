@@ -15,6 +15,57 @@ local M = {
 
 local to_install = 0
 local installed = 0
+local timings = {}
+local start_times = {}
+
+local function start_timer(label) start_times[label] = vim.loop.hrtime() end
+
+local function stop_timer(label)
+	local elapsed = (vim.loop.hrtime() - start_times[label]) / 1000000 -- Convert to milliseconds
+	timings[label] = elapsed
+end
+
+local function show_timings()
+	local total = 0
+	local sorted = {}
+
+	-- Convert to sortable array
+	for label, time in pairs(timings) do
+		table.insert(sorted, { label = label, time = time })
+		total = total + time
+	end
+
+	-- Sort by time taken, descending
+	table.sort(sorted, function(a, b) return a.time > b.time end)
+
+	-- Create output
+	local output = { "Plugin Load Timings:" }
+	for _, item in ipairs(sorted) do
+		table.insert(output, string.format("%6.2fms  %s", item.time, item.label))
+	end
+	table.insert(output, string.format("Total time: %.2fms", total))
+
+	-- Show in floating window
+	local buf = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
+
+	local width = 60
+	local height = #output
+	local win = vim.api.nvim_open_win(buf, false, {
+		relative = "editor",
+		width = width,
+		height = height,
+		row = 1,
+		col = vim.o.columns - width - 1,
+		style = "minimal",
+		border = "rounded",
+	})
+
+	-- Close window after 30 seconds
+	vim.defer_fn(function()
+		if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
+	end, 10000)
+end
 
 ---@class tlj.Plugin
 ---@field repo string The github repo path
@@ -166,14 +217,19 @@ M.load = function(repo)
 		return
 	end
 
+	start_timer("load " .. repo)
 	M.debug("Loading " .. repo)
 
 	-- If this plugin is not installed yet, let's just skip it
 	if vim.fn.isdirectory(path(repo)) == 0 then
 		if spec.auto_install then
 			local success = M.install(repo)
-			if not success then return end
+			if not success then
+				stop_timer("load " .. repo)
+				return
+			end
 		else
+			stop_timer("load " .. repo)
 			return
 		end
 	end
@@ -225,6 +281,8 @@ M.load = function(repo)
 	-- Trigger an event saying plugin is loaded, so other plugins
 	-- which are waiting for us can trigger.
 	vim.api.nvim_exec_autocmds("User", { pattern = spec.repo })
+
+	stop_timer("load " .. repo)
 end
 
 local function url(repo) return "https://github.com/" .. repo end
@@ -240,6 +298,7 @@ end
 ---@param repo string
 ---@return boolean
 M.install = function(repo)
+	start_timer("install " .. repo)
 	vim.fn.mkdir(M.root_dir .. "/" .. M.pack_dir, "p")
 	if vim.fn.isdirectory(path(repo)) == 0 then
 		installed = installed + 1
@@ -260,6 +319,7 @@ M.install = function(repo)
 			else
 				vim.notify("Error installing " .. repo .. ".")
 			end
+			stop_timer("install " .. repo)
 			return false
 		end
 
@@ -268,6 +328,7 @@ M.install = function(repo)
 		-- vim.cmd("helptags ALL")
 	end
 
+	stop_timer("install " .. repo)
 	return true
 end
 
@@ -313,6 +374,7 @@ end
 
 -- Remove any plugins in our pack_dir which are not defined in our list of plugins
 M.cleanup = function()
+	start_timer("cleanup")
 	local desired = {}
 	for _, spec in pairs(M.plugins) do
 		local dir = pack_dir(spec.repo)
@@ -333,6 +395,7 @@ M.cleanup = function()
 			end
 		end
 	end
+	stop_timer("cleanup")
 end
 
 ---@param arg string|tlj.Plugin
@@ -345,7 +408,7 @@ M.start = function(arg)
 	if spec.repo ~= nil and spec.repo ~= "" then M.load(spec.repo) end
 end
 
-local function after_start()
+M.sync = function()
 	vim.schedule(function()
 		for repo, _ in pairs(M.plugins) do
 			if vim.fn.isdirectory(path(repo)) == 0 then to_install = to_install + 1 end
@@ -377,10 +440,12 @@ M.setup = function(opts)
 	end
 
 	vim.api.nvim_create_user_command("GraftUpdate", function() require("graft").update_all() end, {})
+	vim.api.nvim_create_user_command("GraftSync", function() require("graft").sync() end, {})
+	vim.api.nvim_create_user_command("GraftTimings", show_timings, {})
 
 	vim.api.nvim_create_autocmd("VimEnter", {
 		group = M.autogroup,
-		callback = after_start,
+		callback = M.sync,
 		once = true,
 	})
 end
@@ -406,7 +471,7 @@ M.include = function(repo)
 	-- try to load it
 	local hasspec, spec = pcall(require, fp)
 	if not hasspec then
-		vim.notify("Could not include " .. fp .. ".lua", "error")
+		vim.notify("Could not include " .. fp .. ".lua", vim.log.levels.ERROR)
 		return
 	end
 
