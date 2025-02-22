@@ -111,65 +111,11 @@ require("graft").setup({
 			},
 		},
 
+		-- Testing
+		include("nvim-neotest/neotest"),
+
 		-- AI
 		include("yetone/avante.nvim"),
-
-		-- Testing
-		{
-			"fredrikaverpil/neotest-golang",
-			requires = {
-				"andythigpen/nvim-coverage",
-				"nvim-neotest/nvim-nio",
-				"nvim-lua/plenary.nvim",
-				"antoinemadec/FixCursorHold.nvim",
-				"nvim-neotest/neotest",
-			},
-			setup = function()
-				local neotest_golang_opts = {
-					-- runner = "gotestsum",
-					go_test_args = {
-						"-v",
-						"-race",
-						"-count=1",
-						"-coverprofile=" .. vim.fn.getcwd() .. "/coverage.out",
-					},
-				}
-				require("neotest").setup({
-					adapters = {
-						require("neotest-golang")(neotest_golang_opts),
-					},
-				})
-				require("coverage").setup()
-				-- -- get neotest namespace (api call creates or returns namespace)
-				-- local neotest_ns = vim.api.nvim_create_namespace("neotest")
-				-- vim.diagnostic.config({
-				-- 	virtual_text = {
-				-- 		format = function(diagnostic)
-				-- 			local message = diagnostic.message:gsub("\n", " "):gsub("\t", " "):gsub("%s+", " "):gsub("^%s+", "")
-				-- 			return message
-				-- 		end,
-				-- 	},
-				-- }, neotest_ns)
-				-- require("neotest").setup({
-				-- 	-- your neotest config here
-				-- 	adapters = {
-				-- 		require("neotest-go")({
-				-- 			experimental = {
-				-- 				test_table = true,
-				-- 			},
-				-- 		}),
-				-- 	},
-				-- })
-			end,
-			keys = {
-				["<leader>tf"] = { cmd = function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Run tests for file" },
-				["<leader>tn"] = { cmd = function() require("neotest").run.run() end, desc = "Run nearest test" },
-				["<leader>td"] = { cmd = function() require("neotest").run.run({ strategy = "dap" }) end, desc = "Debug nearest test" },
-				["<leader>to"] = { cmd = function() require("neotest").output_panel.open() end, desc = "Open output panel for tests" },
-				["<leader>ts"] = { cmd = function() require("neotest").summary.open() end, desc = "Open summary panel for tests" },
-				["<leader>tc"] = { cmd = "<cmd>Coverage<cr>", desc = "Open summary panel for tests" },
-			},
-		},
 	},
 })
 
