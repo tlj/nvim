@@ -1,5 +1,6 @@
 local M = {
 	plugins = {},
+	root_plugins = {}, -- list
 	loaded = {},
 	installed = {},
 }
@@ -130,17 +131,18 @@ M.load = function(repo)
 		end
 	end
 
+	-- Add the package to Neovim
+	vim.cmd("packadd " .. git.repo_dir(repo))
+
 	for _, req in ipairs(spec.requires or {}) do
 		local req_spec = normalize_spec(req)
 		M.debug(" * Requires " .. req_spec.repo)
 		M.load(req_spec.repo)
 	end
 
-	-- Add the package to Neovim
-	vim.cmd("packadd " .. git.repo_dir(repo))
-
 	-- Run setup function if it exists
 	if spec.setup and type(spec.setup) == "function" then
+		M.debug(" * Running setup() on " .. spec.repo .. ".")
 		spec.setup(spec.settings or {})
 	else
 		-- Let's just make a guess at the correct setup name
@@ -149,7 +151,7 @@ M.load = function(repo)
 		if ok and type(p.setup) == "function" then
 			p.setup(spec.settings or {})
 		else
-			M.debug(" * Failed calling setup() on " .. spec.repo .. ". require passed: " .. vim.inspect(ok) .. " path " .. require_path)
+			M.debug(" * Failed calling setup() on " .. spec.repo .. ". require passed: " .. vim.inspect(ok) .. ". path " .. require_path)
 		end
 	end
 
@@ -338,22 +340,30 @@ M.cleanup = function()
 end
 
 ---@param arg string|tlj.Plugin
-M.opt = function(arg) M.add(arg) end
+M.opt = function(arg)
+	local spec = M.add(arg)
+
+	if spec.repo ~= nil and spec.repo ~= "" then table.insert(M.root_plugins, spec.repo) end
+end
 
 ---@param arg string|tlj.Plugin
 M.start = function(arg)
 	local spec = M.add(arg)
 
-	if spec.repo ~= nil and spec.repo ~= "" then M.load(spec.repo) end
+	if spec.repo ~= nil and spec.repo ~= "" then
+		table.insert(M.root_plugins, spec.repo)
+		M.load(spec.repo)
+	end
 end
 
 M.sync = function()
 	vim.schedule(function()
-		for repo, _ in pairs(M.plugins) do
+		for _, repo in pairs(M.root_plugins) do
 			if vim.fn.isdirectory(git.path(repo)) == 0 then to_install = to_install + 1 end
 		end
 
-		for repo, spec in pairs(M.plugins) do
+		for _, repo in pairs(M.root_plugins) do
+			local spec = M.plugins[repo]
 			if not spec.after then M.load(repo) end
 		end
 
