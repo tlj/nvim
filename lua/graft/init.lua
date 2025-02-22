@@ -21,8 +21,12 @@ local config = require("graft.config")
 ---@field pattern? string[] Patterns which are required for loading the plugin
 ---@field after? string[] Plugins which trigger loading of this plugin (list of repos)
 ---@field keys? table<string, {cmd:string|function, desc: string}> Keymaps with commands (string or function) and description
+---@field ft? string[] Filetypes which will trigger loading of this plugin
+---@field cmds? string[] A list of commands which will load the plugin
+---@field events? string[] A list of events which will load the plugin
 ---@field build? string A command (vim cmd if it starts with :, system otherwise) to run after install
 ---@field version? string Version constraint (tag/branch). Use "*" or nil for default branch, "v1.2.3" for exact tag, "v1" or "v1.2" for prefix matching
+---@field lazy? boolean
 
 ---@param arg string|tlj.Plugin
 ---@return tlj.Plugin
@@ -62,6 +66,53 @@ local function register_after(spec)
 	end
 end
 
+-- Register a proxy user command which will load the plugin and then
+-- trigger the command on the plugin
+---@param spec tlj.Plugin
+M.register_cmds = function(spec)
+	for _, cmd in ipairs(spec.cmds or {}) do
+		-- Register a command for each given commands
+		vim.api.nvim_create_user_command(cmd, function(args)
+			-- When triggered, delete this command
+			vim.api.nvim_del_user_command(cmd)
+
+			-- Then load the plugin
+			M.load(spec.repo)
+
+			-- Then trigger the original command
+			vim.cmd(string.format("%s %s", cmd, args.args))
+		end, {
+			nargs = "*",
+		})
+	end
+end
+
+-- Register filetypes which will trigger loading the plugin
+---@param spec tlj.Plugin
+M.register_ft = function(spec)
+	if spec.ft then
+		vim.api.nvim_create_autocmd("FileType", {
+			group = M.autogroup,
+			pattern = spec.ft,
+			callback = function() M.load(spec.repo) end,
+			once = true, -- we only need this to happen once
+		})
+	end
+end
+
+-- Register events which will trigger loading of the plugin
+---@param spec tlj.Plugin
+M.register_events = function(spec)
+	if spec.events then
+		vim.api.nvim_create_autocmd(spec.events, {
+			group = M.autogroup,
+			pattern = spec.pattern or "*",
+			callback = function() M.load(spec.repo) end,
+			once = true, -- we only need this to happen once
+		})
+	end
+end
+
 ---@param arg string|tlj.Plugin
 ---@return tlj.Plugin
 M.add = function(arg)
@@ -83,6 +134,11 @@ M.add = function(arg)
 		end
 	end
 
+	M.register_cmds(spec)
+	M.register_keys(spec)
+	M.register_events(spec)
+	M.register_ft(spec)
+
 	-- -- Register plugins which will trigger the loading of this plugin
 	register_after(spec)
 
@@ -101,6 +157,23 @@ M.debug = function(msg)
 	if config.config.debug then vim.print(msg) end
 end
 
+-- Register keys which will load the plugin and trigger an action
+---@param spec tlj.Plugin
+M.register_keys = function(spec)
+	if not spec.keys then return end
+
+	for key, _ in pairs(spec.keys) do
+		local callback = function()
+			vim.keymap.del("n", key)
+			M.load(spec.repo)
+			local keys = vim.api.nvim_replace_termcodes(key, true, true, true)
+			vim.api.nvim_feedkeys(keys, "m", false)
+		end
+
+		vim.keymap.set("n", key, callback, {})
+	end
+end
+
 ---@param repo string
 M.load = function(repo)
 	-- Don't load again if already loaded
@@ -115,7 +188,7 @@ M.load = function(repo)
 	end
 
 	benchmark.start_timer("load " .. repo)
-	M.debug("Loading " .. repo)
+	M.debug("Loading " .. repo .. ": " .. vim.inspect(spec.requires))
 
 	-- If this plugin is not installed yet, let's just skip it
 	if vim.fn.isdirectory(git.path(repo)) == 0 then
@@ -131,14 +204,14 @@ M.load = function(repo)
 		end
 	end
 
-	-- Add the package to Neovim
-	vim.cmd("packadd " .. git.repo_dir(repo))
-
 	for _, req in ipairs(spec.requires or {}) do
 		local req_spec = normalize_spec(req)
 		M.debug(" * Requires " .. req_spec.repo)
 		M.load(req_spec.repo)
 	end
+
+	-- Add the package to Neovim
+	vim.cmd("packadd " .. git.repo_dir(repo))
 
 	-- Run setup function if it exists
 	if spec.setup and type(spec.setup) == "function" then
@@ -340,11 +413,7 @@ M.cleanup = function()
 end
 
 ---@param arg string|tlj.Plugin
-M.opt = function(arg)
-	local spec = M.add(arg)
-
-	if spec.repo ~= nil and spec.repo ~= "" then table.insert(M.root_plugins, spec.repo) end
-end
+M.opt = function(arg) M.add(arg) end
 
 ---@param arg string|tlj.Plugin
 M.start = function(arg)
@@ -362,10 +431,10 @@ M.sync = function()
 			if vim.fn.isdirectory(git.path(repo)) == 0 then to_install = to_install + 1 end
 		end
 
-		for _, repo in pairs(M.root_plugins) do
-			local spec = M.plugins[repo]
-			if not spec.after then M.load(repo) end
-		end
+		-- for _, repo in pairs(M.root_plugins) do
+		-- 	local spec = M.plugins[repo]
+		-- 	if not spec.after then M.load(repo) end
+		-- end
 
 		benchmark.start_timer("helptags")
 		vim.cmd("helptags ALL")
