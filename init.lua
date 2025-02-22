@@ -48,7 +48,11 @@ require("graft").setup({
 		},
 
 		-- LSP progress
-		{ "j-hui/fidget.nvim", function() require("fidget").setup() end },
+		{
+			"j-hui/fidget.nvim",
+			function() require("fidget").setup() end,
+			events = { "BufReadPost" },
+		},
 
 		-- AI stuff
 		include("zbirenbaum/copilot.lua"), -- for autocomplete
@@ -94,6 +98,7 @@ require("graft").setup({
 		-- Markdown
 		{
 			"MeanderingProgrammer/render-markdown.nvim",
+			ft = { "markdown", "Avante" },
 			requires = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
 			setup = function()
 				require("render-markdown").setup({
@@ -105,6 +110,7 @@ require("graft").setup({
 		-- Quickfix improvements
 		{
 			"stevearc/quicker.nvim",
+			ft = { "qf" },
 			keys = {
 				[">"] = { cmd = function() require("quicker").expand({ before = 2, after = 2, add_to_existing = true }) end },
 				["<"] = { cmd = function() require("quicker").collapse() end },

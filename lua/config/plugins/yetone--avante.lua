@@ -1,5 +1,6 @@
 return {
 	"yetone/avante.nvim",
+	events = { "BufReadPost" },
 	build = "make",
 	requires = {
 		"stevearc/dressing.nvim",
