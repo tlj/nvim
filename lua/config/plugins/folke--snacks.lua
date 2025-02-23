@@ -1,6 +1,6 @@
 return {
 	"folke/snacks.nvim",
-	version = "v2",
+	-- version = "v2",
 	setup = function()
 		require("snacks").setup({
 			notifier = { enabled = true },
