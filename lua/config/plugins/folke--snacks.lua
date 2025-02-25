@@ -34,6 +34,7 @@ return {
 		["gD"] = { cmd = "<cmd>lua require'snacks'.picker.lsp_declarations()<cr>", desc = "Fzf Declarations" },
 		["gr"] = { cmd = "<cmd>lua require'snacks'.picker.lsp_references()<cr>", desc = "Fzf References" },
 		["gI"] = { cmd = "<cmd>lua require'snacks'.picker.lsp_implementations()<cr>", desc = "Fzf Implementations" },
+		["gi"] = { cmd = "<cmd>lua require'snacks'.picker.lsp_implementations()<cr>", desc = "Fzf Implementations" },
 		["gy"] = { cmd = "<cmd>lua require'snacks'.picker.lsp_type_definitions()<cr>", desc = "Fzf Type Definitions" },
 
 		-- git

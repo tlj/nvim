@@ -162,7 +162,7 @@ end
 M.register_keys = function(spec)
 	if not spec.keys then return end
 
-	for key, _ in pairs(spec.keys) do
+	for key, opts in pairs(spec.keys) do
 		local callback = function()
 			vim.keymap.del("n", key)
 			M.load(spec.repo)
@@ -170,7 +170,7 @@ M.register_keys = function(spec)
 			vim.api.nvim_feedkeys(keys, "m", false)
 		end
 
-		vim.keymap.set("n", key, callback, {})
+		vim.keymap.set("n", key, callback, { desc = opts.desc })
 	end
 end
 

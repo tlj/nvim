@@ -39,6 +39,12 @@ require("graft").setup({
 
 		-- folke/snacks - replaces pickers
 		include("folke/snacks.nvim"),
+
+		{
+			"folke/which-key.nvim",
+			function() require("which-key").setup() end,
+			events = { "VimEnter" },
+		},
 	},
 	opt = {
 		{
@@ -75,7 +81,7 @@ require("graft").setup({
 		{
 			"Yu-Leo/blame-column.nvim",
 			function() require("blame-column").setup() end,
-			keys = { ["<leader>bs"] = { cmd = "<cmd>BlameColumnToggle<cr>" } },
+			keys = { ["<leader>bs"] = { cmd = "<cmd>BlameColumnToggle<cr>", desc = "Blame column" } },
 		},
 
 		-- File management and fuzzy finding
