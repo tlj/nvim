@@ -204,14 +204,13 @@ M.load = function(repo)
 		end
 	end
 
+	vim.opt.runtimepath:append(git.path(repo))
+
 	for _, req in ipairs(spec.requires or {}) do
 		local req_spec = normalize_spec(req)
 		M.debug(" * Requires " .. req_spec.repo)
 		M.load(req_spec.repo)
 	end
-
-	-- Add the package to Neovim
-	vim.cmd("packadd " .. git.repo_dir(repo))
 
 	-- Run setup function if it exists
 	if spec.setup and type(spec.setup) == "function" then
