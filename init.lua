@@ -31,7 +31,7 @@ require("graft").setup({
 
 		-- LSP completions for CMP
 		-- Has to be loaded at startup so it can be used in v0.11 style lsp config
-		"hrsh7th/cmp-nvim-lsp",
+		-- "hrsh7th/cmp-nvim-lsp",
 
 		-- treesitterk
 		include("nvim-treesitter/nvim-treesitter"),
@@ -64,13 +64,17 @@ require("graft").setup({
 		include("zbirenbaum/copilot.lua"), -- for autocomplete
 		include("CopilotC-Nvim/CopilotChat.nvim"), -- for chat
 
-		-- nvim-cmp stuff
-		{
-			"zbirenbaum/copilot-cmp",
-			function(_) require("copilot_cmp").setup() end,
-			after = { "zbirenbaum/copilot.lua" },
-		},
-		include("hrsh7th/nvim-cmp"),
+		-- -- nvim-cmp stuff
+		-- {
+		-- 	"zbirenbaum/copilot-cmp",
+		-- 	function(_) require("copilot_cmp").setup() end,
+		-- 	after = { "zbirenbaum/copilot.lua" },
+		-- },
+		-- include("hrsh7th/nvim-cmp"),
+
+		-- completion
+		{ "giuxtaposition/blink-cmp-copilot", after = { "zbirenbaum/copilot.lua" } },
+		include("Saghen/blink.cmp"),
 
 		-- Code formatting
 		include("stevearc/conform.nvim"),
@@ -127,7 +131,7 @@ require("graft").setup({
 		include("nvim-neotest/neotest"),
 
 		-- AI
-		include("yetone/avante.nvim"),
+		-- include("yetone/avante.nvim"),
 	},
 })
 

@@ -3,28 +3,7 @@
 if vim.fn.has("nvim-0.11") == 1 then
 	vim.lsp.enable({ "luals", "gopls", "yamlls", "jsonls", "intelephense" })
 
-	-- Set global LSP configuration defaults for all language servers (* matches
-	-- all)
-	-- This only works in Neovim v0.11.0+
-	local have_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-	if have_cmp then
-		vim.lsp.config("*", {
-			-- Merge capabilities with the default ones from nvim-cmp LSP
-			capabilities = vim.tbl_deep_extend("force", {
-				textDocument = {
-					semanticTokens = {
-						multilineTokenSupport = true,
-					},
-				},
-			}, cmp_nvim_lsp.default_capabilities()),
-
-			-- Set root directory markers for LSP workspace
-			-- In this case, looking for .git directory as project root
-			root_markers = { ".git" },
-		})
-	else
-		vim.notify("cmp_nvim_lsp not loaded, not aded to LSP capabilities.")
-	end
+	vim.lsp.config("*", { root_markers = { ".git" } })
 
 	local hover = vim.lsp.buf.hover
 	---@diagnostic disable-next-line: duplicate-set-field
