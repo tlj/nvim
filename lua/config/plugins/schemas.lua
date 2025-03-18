@@ -182,7 +182,7 @@ M.yamlls = {
 	["http://json.schemastore.org/kustomization.json"] = "kustomization.{yml,yaml}",
 	["http://json.schemastore.org/helmfile.json"] = "templates/**/*.{yml,yaml}",
 	["http://json.schemastore.org/chart.json"] = "Chart.yml,yaml}",
-	["http://json.schemastore.org/gitlab-ci.json"] = "/*lab-ci.{yml,yaml}",
+	["https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json"] = "/*lab-ci.{yml,yaml}",
 
 	["https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master/v1.18.0-standalone-strict/all.json"] = "templates/**/*.{yml,yaml}",
 }

@@ -5,17 +5,15 @@ return {
 	settings = {
 		model = "claude-3.5-sonnet",
 	},
+	setup = function() require("CopilotChat").setup() end,
 	build = "make tiktoken",
 	keys = {
-		["<leader>cco"] = { cmd = "<cmd>CopilotChat<cr>", desc = "CopilotChat" },
+		["<leader>cco"] = { cmd = function() require("CopilotChat").open() end, desc = "CopilotChat" },
 		["<leader>ccq"] = {
 			cmd = function()
 				local input = vim.fn.input("Quick Chat: ")
 				if input ~= "" then
-					require("lua.config.plugins.copilotc-nvim--copilotchat").ask(
-						input,
-						{ selection = require("CopilotChat.select").buffer }
-					)
+					require("lua.config.plugins.copilotc-nvim--copilotchat").ask(input, { selection = require("CopilotChat.select").buffer })
 				end
 			end,
 			desc = "CopilotChat - Quick chat",

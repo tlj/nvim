@@ -102,7 +102,8 @@ require("graft").setup({
 
 		-- dap debugger
 		include("mfussenegger/nvim-dap"),
-		include("igorlfs/nvim-dap-view"),
+		include("rcarriga--nvim-dap-ui.lua"),
+		-- include("igorlfs/nvim-dap-view"),
 		include("leoluz/nvim-dap-go"),
 
 		-- Markdown
@@ -129,7 +130,6 @@ require("graft").setup({
 
 		-- Testing
 		include("nvim-neotest/neotest"),
-
 		-- AI
 		-- include("yetone/avante.nvim"),
 	},
