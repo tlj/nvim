@@ -33,7 +33,7 @@ require("graft.ui").setup()
 graft.setup({
 	debug = false,
 	start = {
-		{ "tlj/graft.nvim", { setup = function() end, branch = "update" } },
+		{ "tlj/graft.nvim", { setup = function() end } },
 		{
 			-- Make sure graft is up to date
 			-- gruvbox is objectively the best colorscheme, as it is not blue
