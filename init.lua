@@ -7,31 +7,35 @@ require("config.autocmds")
 require("statusline").setup()
 require("lazygit").setup()
 
+-- enable LSP
+require("config.lsp")
+
+-- if neovim is started with a directory as an argument, change to that directory
+if vim.fn.isdirectory(vim.v.argv[2]) == 1 then vim.api.nvim_set_current_dir(vim.v.argv[2]) end
+
 -- Graft is required. Install with:
--- git clone git@github.com:tlj/graft.nvim ~/.local/share/nvim/site/pack/graft.nvim/start/graft.nvim
--- Optional:
--- git clone git@github.com:tlj/graft-git.nvim ~/.local/share/nvim/site/pack/graft.nvim/start/graft-git.nvim
--- git clone git@github.com:tlj/graft-ui.nvim ~/.local/share/nvim/site/pack/graft.nvim/start/graft-ui.nvim
+-- git clone git@github.com:tlj/graft.nvim ~/.local/share/nvim/site/pack/graft/start/graft.nvim
 local ok, graft = pcall(require, "graft")
 if not ok then
 	vim.notify("Graft is not installed")
 	return
 end
 
--- Use graft tools to automatically
-require("graft-git").setup({ install_plugins = true, remove_plugins = true })
-require("graft-ui").setup()
+-- Use graft tools to automatically handle plugins
+require("graft.git").setup({ install_plugins = true, remove_plugins = true })
+require("graft.ui").setup()
 
--- Use the include() method as shorthand for including a plugin spec defined
+-- Use the graft.include() method as shorthand for including a plugin spec defined
 -- in the lua/config/plugins folder. Use this if the spec is more than ~5 lines
 -- to keep the init file clean, but for smaller definitions we define them
 -- here. We don't do automatic loading of spec files, since we want to be explicit
 -- about what we load.
-local include = require("graft").include
-require("graft").setup({
+graft.setup({
 	debug = false,
 	start = {
+		{ "tlj/graft.nvim", { setup = function() end, branch = "update" } },
 		{
+			-- Make sure graft is up to date
 			-- gruvbox is objectively the best colorscheme, as it is not blue
 			"luisiacc/gruvbox-baby",
 			{
@@ -47,11 +51,11 @@ require("graft").setup({
 		},
 
 		-- treesitterk
-		include("nvim-treesitter/nvim-treesitter"),
-		include("nvim-treesitter/nvim-treesitter-textobjects"), -- extend treesitter
+		graft.include("nvim-treesitter/nvim-treesitter"),
+		graft.include("nvim-treesitter/nvim-treesitter-textobjects"), -- extend treesitter
 
 		-- folke/snacks - replaces pickers
-		include("folke/snacks.nvim"),
+		graft.include("folke/snacks.nvim"),
 
 		{
 			"folke/which-key.nvim",
@@ -80,19 +84,19 @@ require("graft").setup({
 		},
 		--
 		-- AI stuff
-		include("zbirenbaum/copilot.lua"), -- for autocomplete
-		include("CopilotC-Nvim/CopilotChat.nvim"), -- for chat
+		graft.include("zbirenbaum/copilot.lua"), -- for autocomplete
+		graft.include("CopilotC-Nvim/CopilotChat.nvim"), -- for chat
 		--
 		-- completion
 		{ "giuxtaposition/blink-cmp-copilot", { after = { "zbirenbaum/copilot.lua" } } },
-		include("Saghen/blink.cmp"),
+		graft.include("Saghen/blink.cmp"),
 		--
 		-- Code formatting
-		include("stevearc/conform.nvim"),
+		graft.include("stevearc/conform.nvim"),
 		--
 		-- Git stuff
-		include("lewis6991/gitsigns.nvim"),
-		include("sindrets/diffview.nvim"),
+		graft.include("lewis6991/gitsigns.nvim"),
+		graft.include("sindrets/diffview.nvim"),
 		{
 			"Yu-Leo/blame-column.nvim",
 			{
@@ -102,21 +106,21 @@ require("graft").setup({
 		},
 		--
 		-- File management and fuzzy finding
-		include("stevearc/oil.nvim"), -- file management
+		graft.include("stevearc/oil.nvim"), -- file management
 		--
 		-- TMUX navigation (ctrl-hjkl to switch between nvim and tmux
-		include("alexghergh/nvim-tmux-navigation"),
+		graft.include("alexghergh/nvim-tmux-navigation"),
 		--
 		-- search and replace
-		include("MagicDuck/grug-far"),
+		graft.include("MagicDuck/grug-far"),
 		--
 		-- -- treesitter
-		-- include("aaronik/treewalker.nvim"), -- navigate through elements on the same indent level
+		-- graft.include("aaronik/treewalker.nvim"), -- navigate through elements on the same indent level
 		--
 		-- dap debugger
-		include("mfussenegger/nvim-dap"),
-		include("rcarriga--nvim-dap-ui.lua"),
-		include("leoluz/nvim-dap-go"),
+		graft.include("mfussenegger/nvim-dap"),
+		graft.include("rcarriga--nvim-dap-ui.lua"),
+		graft.include("leoluz/nvim-dap-go"),
 		--
 		-- -- Markdown
 		{
@@ -145,15 +149,9 @@ require("graft").setup({
 		},
 		--
 		-- Testing
-		include("nvim-neotest/neotest"),
+		graft.include("nvim-neotest/neotest"),
 		--
 		-- AI
-		-- include("yetone/avante.nvim"),
+		graft.include("yetone/avante.nvim"),
 	},
 })
-
--- enable LSP
-require("config.lsp")
-
--- if neovim is started with a directory as an argument, change to that directory
-if vim.fn.isdirectory(vim.v.argv[2]) == 1 then vim.api.nvim_set_current_dir(vim.v.argv[2]) end

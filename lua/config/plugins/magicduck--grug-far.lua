@@ -2,6 +2,7 @@ return {
 	"MagicDuck/grug-far.nvim",
 	{
 		cmds = { "GrugFar" },
+		-- branch = "1.5.4",
 		settings = {
 			headerMaxWidth = 80,
 		},

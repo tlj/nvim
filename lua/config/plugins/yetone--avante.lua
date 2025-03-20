@@ -1,7 +1,8 @@
 return {
 	"yetone/avante.nvim",
 	{
-		events = { "BufReadPost" },
+		events = { "UIEnter" },
+		branch = "v0.0.23",
 		build = "make",
 		requires = {
 			"stevearc/dressing.nvim",
@@ -10,9 +11,7 @@ return {
 			"nvim-tree/nvim-web-devicons",
 		},
 		setup = function()
-			require("avante").setup({
-				-- provider = "copilot",
-			})
+			require("avante").setup()
 		end,
 	},
 }

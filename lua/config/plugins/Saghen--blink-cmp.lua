@@ -2,7 +2,7 @@ return {
 	"Saghen/blink.cmp",
 	{
 		requires = { "rafamadriz/friendly-snippets" },
-		tag = "v0.13.1",
+		branch = "v0.13.1",
 		events = { "VimEnter" },
 		settings = {
 			keymap = {
