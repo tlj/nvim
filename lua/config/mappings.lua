@@ -69,8 +69,8 @@ keymap("i", "<esc>", "<cmd>nohlsearch<cr><esc>", opts)
 keymap("n", "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>", { desc = "Redraw / clear hlsearch / diff update" })
 
 -- Save in insert mode
-keymap("i", "<C-s>", "<cmd>:w<cr><esc>", opts)
-keymap("n", "<C-s>", "<cmd>:w<cr><esc>", opts)
+-- keymap("i", "<C-s>", "<cmd>:w<cr><esc>", opts)
+-- keymap("n", "<C-s>", "<cmd>:w<cr><esc>", opts)
 
 -- Lua
 keymap("n", "<leader>lr", "<cmd>luafile %<CR>", { desc = "Run lua-file" })
