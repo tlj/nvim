@@ -5,7 +5,8 @@ return {
 			"andythigpen/nvim-coverage",
 			"nvim-neotest/nvim-nio",
 			"nvim-lua/plenary.nvim",
-			"antoinemadec/FixCursorHold.nvim",
+		},
+		dependencies = {
 			"fredrikaverpil/neotest-golang",
 		},
 		setup = function()
