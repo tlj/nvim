@@ -2,7 +2,7 @@ return {
 	"Saghen/blink.cmp",
 	{
 		requires = { "rafamadriz/friendly-snippets" },
-		branch = "v0.13.1",
+		branch = "v1.0.0",
 		events = { "VimEnter" },
 		settings = {
 			keymap = {
@@ -35,7 +35,7 @@ return {
 				},
 				menu = {
 					border = "single",
-					auto_show = false,
+					auto_show = true,
 					draw = {
 						treesitter = { "lsp" },
 						columns = {
