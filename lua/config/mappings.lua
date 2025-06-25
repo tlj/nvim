@@ -69,8 +69,8 @@ keymap("i", "<esc>", "<cmd>nohlsearch<cr><esc>", opts)
 keymap("n", "<leader>ur", "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>", { desc = "Redraw / clear hlsearch / diff update" })
 
 -- Save in insert mode
--- keymap("i", "<C-s>", "<cmd>:w<cr><esc>", opts)
--- keymap("n", "<C-s>", "<cmd>:w<cr><esc>", opts)
+keymap("i", "<C-s>", "<cmd>:w<cr><esc>", opts)
+keymap("n", "<C-s>", "<cmd>:w<cr><esc>", opts)
 
 -- Lua
 keymap("n", "<leader>lr", "<cmd>luafile %<CR>", { desc = "Run lua-file" })
@@ -83,8 +83,11 @@ keymap("n", "<leader>w|", "<C-W>v", { desc = "Split window right" })
 keymap("n", "<leader>-", "<C-W>s", { desc = "Split window below" })
 keymap("n", "<leader>|", "<C-W>v", { desc = "Split window right" })
 
+-- Terminal mode ESC mapping - immediate exit without delay
+keymap("t", "<C-h>", "<C-\\><C-n><C-W>h", { desc = "Exit terminal mode" })
+
 -- hightlights under cursor
-vim.keymap.set("n", "<leader>ui", vim.show_pos, { desc = "Inspect pos" })
+keymap("n", "<leader>ui", vim.show_pos, { desc = "Inspect pos" })
 
 -- Diagnostic keymaps
 keymap("n", "<leader>qq", "<cmd>lua vim.diagnostic.setloclist()<cr>", { desc = "Quickfix list" })

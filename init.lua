@@ -152,6 +152,6 @@ graft.setup({
 		graft.include("nvim-neotest/neotest"),
 		--
 		-- AI
-		graft.include("yetone/avante.nvim"),
+		graft.include("coder/claudecode.nvim"),
 	},
 })
