@@ -1,7 +1,7 @@
 -- Enable a list of LSPs  which we have pre-installed on the system
 -- and have configuration for in the lsp/ folder.
 if vim.fn.has("nvim-0.11") == 1 then
-	vim.lsp.enable({ "luals", "gopls", "yamlls", "jsonls", "intelephense" })
+	vim.lsp.enable({ "luals", "gopls", "yamlls", "jsonls", "intelephense", "gdscript" })
 
 	vim.lsp.config("*", { root_markers = { ".git" } })
 

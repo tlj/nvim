@@ -21,6 +21,8 @@ if not ok then
 	return
 end
 
+require("config.gdscript")
+
 -- Use graft tools to automatically handle plugins
 require("graft.git").setup({ install_plugins = true, remove_plugins = true })
 require("graft.ui").setup()
