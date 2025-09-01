@@ -29,19 +29,9 @@ vim.pack.add({
 			end,
 		},
 	},
-	{
-		src = "https://github.com/alexghergh/nvim-tmux-navigation",
-		data = {
-			setup = function()
-				require("nvim-tmux-navigation").setup({
-					disable_when_zoomed = true,
-					keybindings = { left = "<C-h>", down = "<C-j>", up = "<C-k>", right = "<C-l>" },
-				})
-			end,
-		},
-	},
+	require("lua/config/plugins/alexghergh--nvim-tmux-navigation"),
 	require("lua/config/plugins/nvim-treesitter--nvim-treesitter"),
-	"https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
+	require("lua/config/plugins/nvim-treesitter--nvim-treesitter-textobjects"),
 	"https://github.com/nvim-tree/nvim-web-devicons",
 	require("lua/config/plugins/stevearc--oil"),
 	require("lua/config/plugins/stevearc--conform"),
