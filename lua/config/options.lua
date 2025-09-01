@@ -62,7 +62,7 @@ if vim.fn.has("nvim-0.10") == 1 then options.smoothscroll = true end
 
 if vim.fn.has("nvim-0.11") == 1 then
 	options.messagesopt = "hit-enter,history:2000"
-	options.cmdheight = 0
+	options.cmdheight = 1
 end
 
 for k, v in pairs(options) do
