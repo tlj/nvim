@@ -1,23 +1,14 @@
 return {
-	"MagicDuck/grug-far.nvim",
-	{
-		cmds = { "GrugFar" },
-		-- branch = "1.5.4",
-		settings = {
-			headerMaxWidth = 80,
-		},
+	src = "https://github.com/MagicDuck/grug-far.nvim",
+	data = {
+		setup = function()
+			require("grug-far").setup({
+				headerMaxWidth = 80,
+			})
+		end,
 		keys = {
 			["<leader>rs"] = {
-				cmd = function()
-					local grug = require("grug-far")
-					local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
-					grug.grug_far({
-						transient = true,
-						prefills = {
-							filesFilter = ext and ext ~= "" and "*." .. ext or nil,
-						},
-					})
-				end,
+				cmd = "<cmd>GrugFar<cr>",
 				mode = { "n", "v" },
 				desc = "Search and replace",
 			},

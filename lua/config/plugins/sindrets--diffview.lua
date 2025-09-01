@@ -1,6 +1,6 @@
 return {
-	"sindrets/diffview.nvim",
-	{
+	src = "sindrets/diffview.nvim",
+	data = {
 		setup = function(_)
 			require("diffview").setup()
 

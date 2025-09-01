@@ -26,12 +26,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		local bufnr = args.buf
 
 		-- Set up keymaps
-		vim.keymap.set(
-			"n",
-			"gl",
-			'<cmd>lua vim.diagnostic.open_float(0, { scope = "line" })<cr>',
-			{ buffer = bufnr, desc = "Show diagnostics" }
-		)
+		-- vim.keymap.set(
+		-- 	"n",
+		-- 	"gl",
+		-- 	'<cmd>lua vim.diagnostic.open_float(0, { scope = "line" })<cr>',
+		-- 	{ buffer = bufnr, desc = "Show diagnostics" }
+		-- )
 		vim.keymap.set("n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<cr>", { buffer = bufnr, desc = "Rename" })
 		vim.keymap.set("n", "<leader>ga", "<cmd>lua vim.lsp.buf.code_action()<cr>", { buffer = bufnr, desc = "Code actions" })
 
