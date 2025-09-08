@@ -1,6 +1,6 @@
 return {
 	src = "https://github.com/Saghen/blink.cmp",
-	version = "v1.0.0",
+	version = "v1.6.0",
 	data = {
 		setup = function()
 			require("blink.cmp").setup({

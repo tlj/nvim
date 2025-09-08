@@ -69,6 +69,7 @@ vim.pack.add({
 	"https://github.com/rafamadriz/friendly-snippets",
 	"https://github.com/giuxtaposition/blink-cmp-copilot",
 	require("config.plugins.Saghen--blink-cmp"),
+	require("config.plugins.folke--flash"),
 })
 
 for _, package in ipairs(vim.pack.get()) do
