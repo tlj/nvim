@@ -49,16 +49,9 @@ return {
 					},
 				},
 			})
-			local augroup = vim.api.nvim_create_augroup("tlj.treesitter", { clear = true })
-			vim.api.nvim_create_autocmd("PackChanged", { -- update treesitter parsers/queries with plugin updates
-				group = augroup,
-				callback = function(ev)
-					local spec = ev.data.spec
-					if spec and spec.name == "nvim-treesitter" and ev.data.kind == "update" then
-						vim.schedule(function() require("nvim-treesitter").update() end)
-					end
-				end,
-			})
+		end,
+		build = function()
+			require("nvim-treesitter").update()
 		end,
 	},
 }
