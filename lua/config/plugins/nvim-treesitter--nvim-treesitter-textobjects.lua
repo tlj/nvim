@@ -5,7 +5,7 @@
 --
 -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 return {
-	src = "nvim-treesitter/nvim-treesitter-textobjects",
+	src = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
 	data = {
 		setup = function()
 			require("nvim-treesitter.configs").setup({
