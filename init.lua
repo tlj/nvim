@@ -45,6 +45,8 @@ vim.pack.add({
 	"https://github.com/giuxtaposition/blink-cmp-copilot",
 	require("config.plugins.Saghen--blink-cmp"),
 	require("config.plugins.folke--flash"),
+	require("config.plugins.mistweaverco--kulala"),
+	require("config.plugins.obsidian-nvim--obsidian"),
 })
 
 require("config.plugin_loader").process_packs()
