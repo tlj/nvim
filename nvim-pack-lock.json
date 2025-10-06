@@ -1,0 +1,36 @@
+{
+  "plugins": {
+    "blame-column.nvim": [],
+    "blink-cmp-copilot": [],
+    "blink.cmp": {
+      "version": "'v1.6.0'"
+    },
+    "conform.nvim": [],
+    "copilot.lua": [],
+    "diffview.nvim": [],
+    "fidget.nvim": [],
+    "flash.nvim": [],
+    "friendly-snippets": [],
+    "gitsigns.nvim": [],
+    "grug-far.nvim": [],
+    "gruvbox-baby": [],
+    "kulala.nvim": [],
+    "neotest": [],
+    "neotest-golang": [],
+    "nvim-coverage": [],
+    "nvim-dap": [],
+    "nvim-dap-go": [],
+    "nvim-dap-ui": [],
+    "nvim-nio": [],
+    "nvim-tmux-navigation": [],
+    "nvim-treesitter": [],
+    "nvim-treesitter-textobjects": [],
+    "nvim-web-devicons": [],
+    "obsidian.nvim": [],
+    "oil.nvim": [],
+    "opencode.nvim": [],
+    "plenary.nvim": [],
+    "quicker.nvim": [],
+    "snacks.nvim": []
+  }
+}
