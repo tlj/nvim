@@ -13,8 +13,6 @@ require("config.lsp")
 -- if neovim is started with a directory as an argument, change to that directory
 if vim.fn.isdirectory(vim.v.argv[2]) == 1 then vim.api.nvim_set_current_dir(vim.v.argv[2]) end
 
-local map = vim.keymap.set
-
 vim.pack.add({
 	require("config.plugins.luisiacc--gruvbox-baby"),
 	require("config.plugins.alexghergh--nvim-tmux-navigation"),
@@ -27,7 +25,6 @@ vim.pack.add({
 	require("config.plugins.j-hui--fidget"),
 	require("config.plugins.zbirenbaum--copilot"),
 	require("config.plugins.Yu-Leo--blame-column"),
-	require("config.plugins.NickvanDyke--opencode"),
 	require("config.plugins.lewis6991--gitsigns"),
 	require("config.plugins.sindrets--diffview"),
 	require("config.plugins.folke--snacks"),
@@ -47,6 +44,7 @@ vim.pack.add({
 	require("config.plugins.folke--flash"),
 	require("config.plugins.mistweaverco--kulala"),
 	require("config.plugins.obsidian-nvim--obsidian"),
+	require("config.plugins.folke--sidekick"),
 })
 
 require("config.plugin_loader").process_packs()

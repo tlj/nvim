@@ -9,6 +9,10 @@ return {
 						name = "Private",
 						path = "~/syncthing/Obsidian/",
 					},
+					{
+						name = "Work",
+						path = "~/Documents/Obsidian/Work",
+					},
 				},
 			})
 		end,
