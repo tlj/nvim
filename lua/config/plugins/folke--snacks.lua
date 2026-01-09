@@ -1,10 +1,10 @@
 return {
-	"folke/snacks.nvim",
-	-- version = "v2",
-	{
+	src = "https://github.com/folke/snacks.nvim",
+	data = {
 		setup = function()
 			require("snacks").setup({
 				notifier = { enabled = true },
+				input = { enabled = true },
 				picker = {
 					enabled = true,
 					win = {

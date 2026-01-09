@@ -1,8 +1,7 @@
 return {
-	"mfussenegger/nvim-dap",
-	{
-		settings = {},
-		setup = function(_)
+	src = "https://github.com/mfussenegger/nvim-dap",
+	data = {
+		setup = function()
 			local dap = require("dap")
 
 			dap.adapters.php = {

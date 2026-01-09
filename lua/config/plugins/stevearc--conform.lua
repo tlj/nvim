@@ -1,31 +1,29 @@
 return {
-	"stevearc/conform.nvim",
-	{
-		events = { "BufReadPre", "BufNewFile" },
-		cmds = { "ConformInfo" },
-		settings = {
-			log_level = vim.log.levels.DEBUG,
-			formatters_by_ft = {
-				go = { "goimports" },
-				lua = { "stylua" },
-				sh = { "shfmt" },
-				markdown = { "mdformat" },
-				ts = { "prettier" },
-			},
-			formatters = {
-				shfmt = { preprend_args = { "-i", "2" } },
-			},
-			format_on_save = function(bufnr)
-				if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
+	src = "https://github.com/stevearc/conform.nvim",
+	data = {
+		setup = function()
+			require("conform").setup({
+				log_level = vim.log.levels.DEBUG,
+				formatters_by_ft = {
+					go = { "goimports" },
+					lua = { "stylua" },
+					sh = { "shfmt" },
+					markdown = { "mdformat" },
+					ts = { "prettier" },
+				},
+				formatters = {
+					shfmt = { preprend_args = { "-i", "2" } },
+				},
+				format_on_save = function(bufnr)
+					if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return end
 
-				local autoformat_filetypes = { "lua", "go", "json" }
-				local filetype = vim.bo[bufnr].filetype
+					local autoformat_filetypes = { "lua", "go", "json" }
+					local filetype = vim.bo[bufnr].filetype
 
-				if vim.tbl_contains(autoformat_filetypes, filetype) then return { timeout_ms = 500, lsp_format = "fallback" } end
-			end,
-		},
-		setup = function(opts)
-			require("conform").setup(opts)
+					if vim.tbl_contains(autoformat_filetypes, filetype) then return { timeout_ms = 500, lsp_format = "fallback" } end
+				end,
+			})
+
 			vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
 			vim.api.nvim_create_user_command("FormatDisable", function(args)
@@ -43,10 +41,7 @@ return {
 			end, { desc = "Enable autoformat-on-save" })
 		end,
 		keys = {
-			["<leader>oo"] = {
-				cmd = function() require("conform").format({ async = false, lsp_fallback = false }) end,
-				desc = "Format file",
-			},
+			["<leader>oo"] = { cmd = function() require("conform").format({ async = false, lsp_fallback = false }) end, desc = "Format buffer" },
 		},
 	},
 }

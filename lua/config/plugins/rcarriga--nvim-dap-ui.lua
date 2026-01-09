@@ -1,31 +1,29 @@
 return {
-	"rcarriga/nvim-dap-ui",
-	{
-		requires = { "nvim-neotest/nvim-nio", "mfussenegger/nvim-dap" },
-		settings = {
-			layouts = {
-				{
-					elements = {
-						{ id = "scopes", size = 0.60 },
-						{ id = "watches", size = 0.20 },
-						{ id = "breakpoints", size = 0.20 },
-					},
-					size = 70,
-					position = "left",
-				},
-				{
-					elements = {
-						"repl",
-					},
-					size = 10,
-					position = "bottom",
-				},
-			},
-		},
-		setup = function(opts)
+	src = "https://github.com/rcarriga/nvim-dap-ui",
+	data = {
+		setup = function()
 			local dap, dapui = require("dap"), require("dapui")
 
-			require("dapui").setup(opts)
+			require("dapui").setup({
+				layouts = {
+					{
+						elements = {
+							{ id = "scopes", size = 0.60 },
+							{ id = "watches", size = 0.20 },
+							{ id = "breakpoints", size = 0.20 },
+						},
+						size = 70,
+						position = "left",
+					},
+					{
+						elements = {
+							"repl",
+						},
+						size = 10,
+						position = "bottom",
+					},
+				},
+			})
 			dap.listeners.after.event_initialized["dapui_config"] = function()
 				vim.notify("Debug session started.")
 				dapui.open()

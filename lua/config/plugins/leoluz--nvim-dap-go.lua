@@ -1,9 +1,8 @@
 return {
-	"leoluz/nvim-dap-go",
-	{
-		after = { "mfussenegger/nvim-dap" },
-		setup = function(settings) require("dap-go").setup(settings) end,
-		settings = {
+	src = "https://github.com/leoluz/nvim-dap-go",
+	after = { "mfussenegger/nvim-dap" },
+	setup = function()
+		require("dap-go").setup({
 			dap_configurations = {
 				{
 					type = "go",
@@ -17,6 +16,6 @@ return {
 					end,
 				},
 			},
-		},
-	},
+		})
+	end,
 }

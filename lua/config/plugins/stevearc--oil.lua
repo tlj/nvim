@@ -1,16 +1,9 @@
 return {
-	"stevearc/oil.nvim",
-	{
-		-- settings = {
-		-- 	float = {
-		-- 		max_width = 90,
-		-- 		max_height = 30,
-		-- 	},
-		-- },
-		cmds = { "Oil" },
-		requires = { "nvim-tree/nvim-web-devicons" },
-		setup = function(settings)
-			require("oil").setup(settings)
+	src = "https://github.com/stevearc/oil.nvim",
+	data = {
+		setup = function()
+			require("nvim-web-devicons").setup({ color_icons = true })
+			require("oil").setup({})
 			vim.api.nvim_create_autocmd("FileType", {
 				pattern = { "oil" },
 				callback = function(event)
@@ -26,10 +19,7 @@ return {
 			})
 		end,
 		keys = {
-			["<leader>tt"] = {
-				cmd = function() require("oil").open() end,
-				desc = "Oil file explorer",
-			},
+			["<leader>tt"] = { cmd = function() require("oil").open() end, desc = "Open Oil" },
 		},
 	},
 }

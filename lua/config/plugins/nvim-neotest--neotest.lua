@@ -1,14 +1,6 @@
 return {
-	"nvim-neotest/neotest",
-	{
-		requires = {
-			"andythigpen/nvim-coverage",
-			"nvim-neotest/nvim-nio",
-			"nvim-lua/plenary.nvim",
-		},
-		dependencies = {
-			"fredrikaverpil/neotest-golang",
-		},
+	src = "https://github.com/nvim-neotest/neotest",
+	data = {
 		setup = function()
 			local neotest_golang_opts = {
 				-- runner = "gotestsum",
